@@ -1,28 +1,19 @@
 import streamlit as st
 import requests
 
-API_URL = "http://127.0.0.1:8000/recommend"
+API_URL = "https://YOUR-BACKEND-URL.onrender.com/recommend"
 
-st.title("SHL Assessment Finder")
+st.title("SHL Assessment Recommendation Engine")
 
-query = st.text_area("Describe your hiring need")
+query = st.text_area("Enter hiring requirement")
 
 if st.button("Find Assessments"):
-    if len(query) < 5:
-        st.error("Please enter a meaningful query")
+    if len(query.strip()) < 5:
+        st.error("Please enter at least 5 characters")
     else:
-        with st.spinner("Finding assessments..."):
-            try:
-                resp = requests.get(
-                    API_URL,
-                    params={"query": query},
-                    timeout=20
-                )
-                resp.raise_for_status()
-                data = resp.json()
+        with st.spinner("Finding best assessments..."):
+            response = requests.get(API_URL, params={"query": query})
+            data = response.json()
 
-                for r in data["results"]:
-                    st.markdown(f"- [{r['name']}]({r['url']})")
-
-            except Exception as e:
-                st.error(f"API error: {e}")
+            for item in data["results"]:
+                st.markdown(f"- [{item['name']}]({item['url']})")
