@@ -1,19 +1,12 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from data.raw.recommend import recommend_api
+from fastapi import FastAPI, Query
+from backend.recommend import recommend
 
 app = FastAPI(title="SHL Assessment Recommender")
 
-class RecommendRequest(BaseModel):
-    query: str
-
-@app.post("/recommend")
-def recommend_endpoint(req: RecommendRequest):
-    return {
-        "query": req.query,
-        "results": recommend_api(req.query)
-    }
-
-@app.get("/")
-def root():
-    return {"status": "ok"}
+@app.get("/recommend")
+def recommend_api(
+    query: str = Query(..., min_length=5),
+    k: int = Query(10, ge=1, le=10)
+):
+    results = recommend(query, k)
+    return {"results": results}
