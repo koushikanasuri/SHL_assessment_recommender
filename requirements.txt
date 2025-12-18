@@ -1,11 +1,8 @@
 fastapi
 uvicorn
-pydantic
-numpy
-faiss-cpu
 sentence-transformers
-scikit-learn
+faiss-cpu
+numpy
 pandas
-tqdm
-requests
 streamlit
+requests
