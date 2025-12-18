@@ -1,30 +1,39 @@
-import pandas as pd
+import json
+import faiss
+import numpy as np
+from sentence_transformers import SentenceTransformer
+from pathlib import Path
 
-CSV_PATH = "data/submission.csv"
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-def recommend_from_csv(query: str, k: int = 10):
-    df = pd.read_csv(CSV_PATH)
+INDEX_PATH = BASE_DIR / "data" / "index" / "faiss.index"
+META_PATH = BASE_DIR / "data" / "index" / "meta.json"
 
-    # naive but acceptable baseline
-    df["score"] = df["Query"].str.lower().apply(
-        lambda x: sum(word in x for word in query.lower().split())
-    )
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    df = df.sort_values("score", ascending=False).head(k)
+def recommend(query: str, k: int = 10):
+    index = faiss.read_index(str(INDEX_PATH))
+
+    with open(META_PATH, "r", encoding="utf-8") as f:
+        meta = json.load(f)
+
+    query_vector = model.encode(query, normalize_embeddings=True)
+    q_vec = np.array([query_vector]).astype("float32")
+
+    scores, indices = index.search(q_vec, k)
 
     results = []
-    for _, row in df.iterrows():
-        for i in range(1, 11):
-            url_col = f"Assessment_url_{i}"
-            if pd.notna(row.get(url_col)):
-                results.append({
-                    "name": row.get(url_col).split("/")[-2].replace("-", " ").title(),
-                    "url": row.get(url_col),
-                    "description": "SHL assessment relevant to the role",
-                    "duration": None,
-                    "remote_support": "Yes",
-                    "adaptive_support": "No",
-                    "test_type": ["Aptitude", "Personality"]
-                })
+    seen = set()
 
-    return results[:10]
+    for idx in indices[0]:
+        if idx == -1:
+            continue
+        item = meta[idx]
+        url = item.get("url")
+        if url and url not in seen:
+            results.append(item)
+            seen.add(url)
+        if len(results) == 10:
+            break
+
+    return results
