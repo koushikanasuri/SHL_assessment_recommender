@@ -1,19 +1,24 @@
 import streamlit as st
-import requests
+from sentence_transformers import SentenceTransformer
+import faiss
+import numpy as np
 
-API_URL = "https://YOUR-BACKEND-URL.onrender.com/recommend"
+@st.cache_resource
+def load_model():
+    return SentenceTransformer("all-MiniLM-L6-v2")
 
-st.title("SHL Assessment Recommendation Engine")
+@st.cache_resource
+def load_index():
+    return faiss.read_index("index.faiss")
 
-query = st.text_area("Enter hiring requirement")
+st.title("Semantic Search")
 
-if st.button("Find Assessments"):
-    if len(query.strip()) < 5:
-        st.error("Please enter at least 5 characters")
-    else:
-        with st.spinner("Finding best assessments..."):
-            response = requests.get(API_URL, params={"query": query})
-            data = response.json()
+model = load_model()
+index = load_index()
 
-            for item in data["results"]:
-                st.markdown(f"- [{item['name']}]({item['url']})")
+query = st.text_input("Enter query")
+
+if query:
+    emb = model.encode([query])
+    D, I = index.search(np.array(emb), k=5)
+    st.write("Results:", I)
