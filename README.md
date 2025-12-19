@@ -155,7 +155,7 @@ shl_assessments_enriched.json
 Live Links
 
 API Base URL:
-https://koushik0016-api_for_shl_assessment.hf.space/
+https://huggingface.co/spaces/koushik0016/api_for_shl_assessment
 
 Web Application:
 https://shlassessmentrecommender-peheappubars78kth4kef6w.streamlit.app/
