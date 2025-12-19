@@ -1,9 +1,6 @@
-fastapi
-uvicorn
+streamlit
 sentence-transformers
 faiss-cpu
 numpy
 pandas
-streamlit
 requests
-gunicorn
