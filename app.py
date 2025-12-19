@@ -9,7 +9,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @st.cache_resource
 def load_metadata():
-    return pd.read_csv(os.path.join(BASE_DIR, "shl_assessments.csv"))
+    return pd.read_json("shl_assessments_enriched.json")
+
 
 @st.cache_resource
 def load_model():
@@ -38,3 +39,4 @@ if query:
         st.markdown(f"### {row['assessment_name']}")
         st.write(row['description'])
         st.link_button("View Assessment", row['link'])
+
