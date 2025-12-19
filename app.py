@@ -36,7 +36,8 @@ if query:
 
     st.subheader("Top Matches")
     for _, row in results.iterrows():
-        st.markdown(f"### {row['assessment_name']}")
+        st.markdown(f"### {row['name']}")
         st.write(row['description'])
-        st.link_button("View Assessment", row['link'])
+        st.link_button("View Assessment", row['url'])
+
 
